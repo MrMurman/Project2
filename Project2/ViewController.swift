@@ -48,27 +48,42 @@ class ViewController: UIViewController {
     }
 
     @IBAction func checkAnswer(_ sender: UIButton) {
-        var title: String
-        
-        
-        guard round != 10 else {
-            showAlert(title: "Game over", score: score)
-            round = 0
-            score = 0
-            return
+       
+        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 5, options: []) {
+            sender.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
+        } completion: { finished in
+            //sender.transform = CGAffineTransform(scaleX: 1, y: 1)
         }
-        
-        if sender.tag == correctAnswer {
-            score += 1
-            round += 1
-            askQuestion()
+        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 5, options: []) {
+            sender.transform = CGAffineTransform(scaleX: 1, y: 1)
+        } completion: { [self] finished in
+           // sender.transform = CGAffineTransform(scaleX: 1, y: 1)
+            var title: String
             
-        } else {
-            title = "Wrong, that's the flag of \(countries[sender.tag].uppercased())"
-            score -= 1
-            round += 1
-            showAlert(title: title, score: score)}
+            
+            guard round != 10 else {
+                //showAlert(title: "Game over", score: score)
+                checkTopScore()
+                round = 0
+                score = 0
+                return
+            }
+            
+            if sender.tag == correctAnswer {
+                score += 1
+                round += 1
+                askQuestion()
+                
+            } else {
+                title = "Wrong, that's the flag of \(countries[sender.tag].uppercased())"
+                score -= 1
+                round += 1
+                showAlert(title: title, score: score)}
+            
+        }
+
         
+       
         
     }
     
@@ -76,6 +91,27 @@ class ViewController: UIViewController {
         let alert = UIAlertController(title: title, message: "Your score is \(score)", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: askQuestion))
         present(alert, animated: true, completion: nil)
+    }
+    
+    func checkTopScore() {
+        let defaults = UserDefaults.standard
+        
+          if var topScore = try? defaults.integer(forKey: "score") {
+              if score > topScore {
+                  showAlert(title: "You beat your previous top Score", score: score)
+                  topScore = score
+                  defaults.set(score, forKey: "score")
+              } else { showAlert(title: "Try harder - Game Over", score: score) }
+          } else {
+              defaults.set(score, forKey: "score")
+          }
+      
+        
+        
+        
+        
+        
+        
     }
 }
 
